@@ -1,0 +1,20 @@
+{
+  "name": "matlantis-agent-skills",
+  "owner": {
+    "name": "Matlantis Corporation"
+  },
+  "metadata": {
+    "description": "Matlantis / PFP atomistic simulation skills for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "matlantis",
+      "source": "./plugins/matlantis",
+      "description": "Matlantis / PFP atomistic simulation skills",
+      "license": "Apache-2.0",
+      "homepage": "https://matlantis.com/",
+      "repository": "https://github.com/matlantis/matlantis-agent-skills"
+    }
+  ]
+}
