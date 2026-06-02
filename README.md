@@ -2,11 +2,11 @@
 
 [Japanese version / 日本語版](README.ja.md)
 
-A plugin marketplace providing Matlantis / PFP atomistic simulation skills for Claude Code.
+A plugin marketplace providing Matlantis / PFP atomistic simulation skills for Claude Code and Codex.
 
 ## Overview
 
-Matlantis Agent Skills is a collection of skills that enables Claude Code to assist with atomistic simulations on the [Matlantis](https://matlantis.com/) platform. 16 skill modules guide Python code generation for structure optimization, molecular dynamics, property calculations, and more — all powered by PFP (Preferred Potential) neural network potentials.
+Matlantis Agent Skills is a collection of skills that enables Claude Code and Codex to assist with atomistic simulations on the [Matlantis](https://matlantis.com/) platform. 16 skill modules guide Python code generation for structure optimization, molecular dynamics, property calculations, and more — all powered by PFP (Preferred Potential) neural network potentials.
 
 Each skill systematically covers implementation patterns, best practices, and common errors with solutions, all built on ASE (Atomic Simulation Environment).
 
@@ -35,11 +35,15 @@ Each skill systematically covers implementation patterns, best practices, and co
 
 ### Prerequisites
 
-- **Claude Code** CLI installed
+- **Claude Code** CLI installed when using Claude Code
   - A version supporting the plugin feature is required
   - Installation: https://claude.ai/code
+- **Codex** CLI installed when using Codex plugins
+  - Installation: https://developers.openai.com/codex/cli
 
 ### Installation
+
+#### Claude Code
 
 Run the following commands in the Claude Code REPL:
 
@@ -48,8 +52,6 @@ Run the following commands in the Claude Code REPL:
 /plugin marketplace add https://github.com/matlantis/matlantis-agent-skills
 ```
 
-### Configuration
-
 ```
 # 2. Open the plugin manager
 /plugin
@@ -57,7 +59,19 @@ Run the following commands in the Claude Code REPL:
 # 3. Enable the matlantis plugin from the "Marketplaces" tab
 ```
 
-Once enabled, Claude Code will automatically reference the appropriate skills when you work with Matlantis-related code or questions.
+#### Codex
+
+Run the following commands from your shell:
+
+```bash
+# 1. Register the marketplace
+codex plugin marketplace add matlantis/matlantis-agent-skills
+
+# 2. Install the plugin from the marketplace
+codex plugin add matlantis@matlantis-agent-skills
+```
+
+Once installed or enabled, the agent will automatically reference the appropriate skills when you work with Matlantis-related code or questions.
 
 ## Skills Details and Usage Examples
 

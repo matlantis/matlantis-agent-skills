@@ -1,0 +1,32 @@
+{
+  "name": "matlantis",
+  "version": "1.0.1",
+  "description": "Matlantis / PFP atomistic simulation skills",
+  "author": {
+    "name": "Matlantis Corporation"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Matlantis",
+    "shortDescription": "Matlantis / PFP atomistic simulation skills.",
+    "longDescription": "Use Matlantis / PFP skills in Codex for atomistic simulation workflows, including ASE setup, structure optimization, molecular dynamics, reaction paths, property analysis, visualization, and storage.",
+    "developerName": "Matlantis Corporation",
+    "category": "Science",
+    "capabilities": [
+      "Matlantis and PFP guidance",
+      "ASE-based Python code generation",
+      "Atomistic simulation workflow support"
+    ],
+    "defaultPrompt": "Help me use Matlantis / PFP for atomistic simulations."
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://matlantis.com/",
+  "repository": "https://github.com/matlantis/matlantis-agent-skills",
+  "keywords": [
+    "matlantis",
+    "pfp",
+    "atomistic-simulation",
+    "molecular-dynamics",
+    "ase"
+  ]
+}

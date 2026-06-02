@@ -1,10 +1,10 @@
 # Matlantis Agent Skills
 
-Claude Code 向けの Matlantis / PFP 原子シミュレーションスキルを提供するプラグインマーケットプレイスです。
+Claude Code / Codex 向けの Matlantis / PFP 原子シミュレーションスキルを提供するプラグインマーケットプレイスです。
 
 ## Overview
 
-Matlantis Agent Skills は、[Matlantis](https://matlantis.com/ja/) プラットフォーム上での原子シミュレーションを Claude Code がサポートするためのスキル集です。PFP (Preferred Potential) ニューラルネットワークポテンシャルを活用した構造最適化、分子動力学、物性計算などの Python コード生成を、16 のスキルモジュールがガイドします。
+Matlantis Agent Skills は、[Matlantis](https://matlantis.com/ja/) プラットフォーム上での原子シミュレーションを Claude Code と Codex がサポートするためのスキル集です。PFP (Preferred Potential) ニューラルネットワークポテンシャルを活用した構造最適化、分子動力学、物性計算などの Python コード生成を、16 のスキルモジュールがガイドします。
 
 各スキルは、ASE (Atomic Simulation Environment) を基盤とした実装パターン、ベストプラクティス、よくあるエラーと対処法を体系的にまとめています。
 
@@ -33,11 +33,15 @@ Matlantis Agent Skills は、[Matlantis](https://matlantis.com/ja/) プラット
 
 ### 前提条件
 
-- **Claude Code** CLI がインストールされていること
+- Claude Code で使う場合は **Claude Code** CLI がインストールされていること
   - プラグイン機能に対応したバージョンが必要です
   - インストール: https://claude.ai/code
+- Codex plugin として使う場合は **Codex** CLI がインストールされていること
+  - インストール: https://developers.openai.com/codex/cli
 
 ### インストール手順
+
+#### Claude Code
 
 Claude Code の REPL 上で以下のコマンドを実行します。
 
@@ -46,8 +50,6 @@ Claude Code の REPL 上で以下のコマンドを実行します。
 /plugin marketplace add https://github.com/matlantis/matlantis-agent-skills
 ```
 
-### 設定方法
-
 ```
 # 2. プラグインマネージャーを開く
 /plugin
@@ -55,7 +57,19 @@ Claude Code の REPL 上で以下のコマンドを実行します。
 # 3. 「Marketplaces」タブから matlantis プラグインを有効化する
 ```
 
-有効化後、Matlantis 関連のコードや質問に対して、Claude Code が自動的に適切なスキルを参照するようになります。
+#### Codex
+
+シェル上で以下のコマンドを実行します。
+
+```bash
+# 1. マーケットプレイスを登録する
+codex plugin marketplace add matlantis/matlantis-agent-skills
+
+# 2. マーケットプレイスから plugin をインストールする
+codex plugin add matlantis@matlantis-agent-skills
+```
+
+インストールまたは有効化後、Matlantis 関連のコードや質問に対して、エージェントが自動的に適切なスキルを参照するようになります。
 
 ## スキル一覧と使用例
 
