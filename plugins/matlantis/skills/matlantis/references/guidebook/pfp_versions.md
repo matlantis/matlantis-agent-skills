@@ -4,6 +4,7 @@
 
 ## Matlantisで提供されているPFPのバージョン ​
 
+  * [v9.0.0](./pfp_versions/v9.0.0.html)
   * [v8.0.0](./pfp_versions/v8.0.0.html)
   * [v7.0.0](./pfp_versions/v7.0.0.html)
   * [v6.0.0](./pfp_versions/v6.0.0.html)
@@ -39,6 +40,7 @@ PBE、PBE_U、PBE_PLUS_D3、PBE_U_PLUS_D3、WB97XDが現在の計算モード名
 
 Version| PBE_U| WB97XD| PBE_U_PLUS_D3| PBE| PBE_PLUS_D3| R2SCAN| R2SCAN_PLUS_D3  
 ---|---|---|---|---|---|---|---  
+v8.0.0| ✓| ✓| ✓| ✓ | ✓| ✓(default)| ✓  
 v8.0.0| ✓| ✓| ✓| ✓ (default)| ✓| ✓| ✓  
 v7.0.0| ✓| ✓| ✓| ✓ (default)| ✓| |   
 v6.0.0| ✓| ✓| ✓| ✓ (default)| ✓| |   

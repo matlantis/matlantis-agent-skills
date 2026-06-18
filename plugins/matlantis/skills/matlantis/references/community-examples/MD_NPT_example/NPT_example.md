@@ -304,7 +304,7 @@ Cell 長さ `a:b:c` の比率を確認します。比率が変わらずに保た
 traj = Trajectory("output/si_iso.traj")
 cell_size_history = [atoms.cell.cellpar() for atoms in traj]
 
-cell_length_history = np.array([atoms.get_cell_lengths_and_angles()[:3] for atoms in traj])
+cell_length_history = np.array([atoms.cell.cellpar()[:3] for atoms in traj])
 
 # ｐｒｉｎｔ量を減らすため、10step毎に確認
 cell_length_ratio_history = cell_length_history / cell_length_history[:, 0:1]

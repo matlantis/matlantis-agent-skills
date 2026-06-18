@@ -2,7 +2,7 @@
 name: mt-visualization
 description: >
   原子構造とトラジェクトリの可視化を扱うスキルです。
-  show_gui, pfcc_extras, nglview, show_ase, show_asetraj, view_ngl,
+  view_ngl, show_gui, AddEditor, pfcc_extras, nglview, show_ase, show_asetraj,
   ase.visualize.view, POV-Ray, 可視化, visualization,
   構造確認, 目視チェック, trajectory 表示
   に関するコード生成時に使用してください。
@@ -14,58 +14,42 @@ description: >
 
 Matlantis の JupyterLab 環境における原子構造とトラジェクトリの可視化ガイドです。シミュレーション結果の検証や構造確認は、計算ワークフロー全体の品質を左右する重要なステップです。
 
-Matlantis 環境では主に以下の可視化手段を利用できます。
+pfcc_extras パッケージが提供する以下の3ツールが主要な選択肢です。
 
-- **pfcc_extras.show_gui**: Matlantis 標準の可視化ツール。単一構造とトラジェクトリの両方に対応
-- **nglview**: 高機能な分子可視化ライブラリ。インタラクティブな操作と GUI パネルを提供
-- **ASE visualization**: ASE 組み込みの可視化機能。nglview バックエンドを指定可能
-- **POV-Ray**: 高品質な静止画レンダリング用
+- **pfcc_extras.view_ngl**: 構造・トラジェクトリの確認に最も手軽なビューア
+- **pfcc_extras.show_gui**: view_ngl に加え、Calculator 連携によるエネルギー・力の表示が可能
+- **pfcc_extras.visualization.AddEditor**: 原子の追加・削除・置換・最適化まで行える構造エディタ
 
+上記3ツールでカバーできない場合（nglview の直接制御が必要な場合、高品質な静止画が必要な場合など）は、nglview や POV-Ray を補助的に使用します。  
 可視化は計算の補助的な役割ですが、構造の妥当性確認を怠ると「原子が重なっている」「PBC が正しく設定されていない」といった初歩的なミスに気づかず、長時間の計算を無駄にすることがあります。計算投入前の可視化チェックは必須の手順です。
-
-本ガイドでは、可視化の目的に応じた手法の選択基準と、各手法の具体的な使い方を説明します。
-
-## ワークフロー
-
-可視化の標準的なワークフローは以下の通りです。
-
-1. **目的の明確化**: 何を確認したいかを決める（構造の妥当性、最適化の前後比較、トラジェクトリの追跡など）
-2. **手法の選択**: 目的に応じた可視化手法を選ぶ
-3. **構造・トラジェクトリの表示**: 選択した手法で表示する
-4. **視覚的検証**: 結合、周期境界、原子の重なり等をチェックする
-5. **必要に応じた調整**: フレーム間引き、表示オプションの変更など
 
 ### 可視化手法の判断チェックリスト
 
-以下のチェックリストに基づいて、適切な可視化手法を選択してください。
-
-| 確認事項 | 推奨手法 |
-| :--- | :--- |
-| 構造をざっと確認したい | `pfcc_extras.show_gui` |
-| 最適化前後の比較が必要 | `nglview` で 2 構造を並べて表示 |
-| トラジェクトリを再生したい | `nglview.show_asetraj()` またはフレーム間引き表示 |
-| 距離や角度の測定が必要 | `nglview` の GUI パネル（gui=True） |
-| 高品質な静止画が必要 | POV-Ray レンダリング |
-| 大規模系（1000+ 原子）の表示 | フレーム間引き + 軽量表示設定 |
-| static image として保存したい | POV-Ray または matplotlib |
-| interactive viewer が必要 | `nglview` |
+| | view_ngl | show_gui | AddEditor |
+| :--- | :--- | :--- | :--- |
+| 主な目的 |構造・軌跡の確認 |構造確認 + エネルギー表示| 構造の編集・構築 |
+| トラジェクトリ表示 | ✓ | ✓ | × | 
+| エネルギー・力の表示 | × | ✓ | ✓ |
+| 距離や角度の測定 | ✓ | ✓ | ✓ |
+| 構造を図(pngなど)として保存 | × | ✓ | ✓ |
+| 原子の追加・削除・置換 | × | × | ✓ |
 
 ## 実装パターン
 
-### パターン A: pfcc_extras.show_gui による可視化
+### パターン A: pfcc_extras.view_ngl による可視化
 
-Matlantis 環境で最も手軽に使える可視化手法です。単一の Atoms オブジェクトとトラジェクトリ（List[Atoms]）の両方に対応しています。Matlantis が提供する `pfcc_extras` パッケージに含まれています。
+Matlantis 環境で最も手軽に使える可視化手法です。単一の Atoms オブジェクトとトラジェクトリ（List[Atoms]）の両方に対応しています。  
+Matlantis が提供する `pfcc_extras` パッケージに含まれています。
 
 ```python
-from pfcc_extras import show_gui
+from pfcc_extras import view_ngl
 
-# 単一構造の可視化
-show_gui(atoms)
+# 標準的な可視化
+view_ngl(atoms, representations=["ball+stick"], replace_structure=True)  # Atoms オブジェクトもしくは ASE Trajectory オブジェクトを渡す
 
-# トラジェクトリの可視化
-show_gui(trajectory)  # List[Atoms] を渡す
+# 結合の描画をしない場合
+view_ngl(atoms, replace_structure=True)
 ```
-
 #### 用途
 
 - 計算投入前の構造確認（結合の妥当性、PBC のチェック、原子の重なり検出）
@@ -73,12 +57,13 @@ show_gui(trajectory)  # List[Atoms] を渡す
 - MD トラジェクトリの簡易再生
 
 #### 入力形式
-
-`show_gui` は以下の形式を受け付けます。
-
 - `ase.Atoms`: 単一構造
 - `List[ase.Atoms]`: トラジェクトリ（最適化過程、MD 過程など）
 - ASE Trajectory オブジェクト
+
+#### 表示オプションの調整
+- `representations` オプションで表示スタイルを指定可能（例: `["ball+stick"]`）。省略した場合は結合は表示されません。
+- `replace_structure=True` を指定すると、frame ごとに構造を丸ごと置き換えます。デフォルト（`False`）では frame 0 の構造情報を保持したまま更新するため、MD や NEB のように結合が変化するトラジェクトリでは意図しない結合が表示され続ける場合があります。
 
 #### 注意事項
 
@@ -86,24 +71,87 @@ show_gui(trajectory)  # List[Atoms] を渡す
 - 大規模系では表示が重くなる場合があります
 - Notebook セル内で呼び出す必要があります（スクリプト実行では表示されません）
 
-### パターン B: nglview による単一構造の可視化
+### パターン B: pfcc_extras.show_gui による可視化
 
-nglview は高機能な分子可視化ライブラリで、インタラクティブな操作が可能です。回転、ズーム、パン操作に加え、原子の選択や距離・角度の測定ができます。
+`view_ngl` と同じく `pfcc_extras` が提供する可視化ツールです。
+入力形式・注意事項は`view_ngl` と同様です。
+Calculator を設定した状態で使うと、エネルギー・最大力の表示や簡易最適化まで GUI 上で実行できます。
+
+```python
+from pfcc_extras import show_gui
+
+show_gui(atoms, representations=["ball+stick"], replace_structure=True)
+```
+
+#### 固有オプション
+
+- **show_axes**: 座標軸の表示
+- **show_atom_index**: 原子インデックスの表示
+- **ball_size**: 原子球の表示サイズ
+
+#### 画像の保存
+
+Viewer 右側の control box にある "download image" / "save image" ボタンから、
+現在の表示を PNG 画像として保存できます。
+
+### パターン C: AddEditor による構造編集
+
+nglview ベースのインタラクティブ構造エディタです。
+可視化だけでなく、GUI 上で原子の追加・削除・置換・移動・回転と
+構造最適化まで実行できます。モデリング作業に使用してください。
+
+```python
+from pfcc_extras.visualize.addeditor import AddEditor
+
+# Atoms オブジェクトから起動
+editor = AddEditor(atoms)
+editor.display()
+
+# SMILES 文字列から起動（引数なしの場合は CH4 が可視化されます）
+editor = AddEditor("c1ccccc1")
+editor.display()
+```
+
+atoms に Calculator が設定されていない場合は、自動設定されます。
+
+#### 主な編集操作（タブ別）
+
+| タブ | 主な機能 |
+| :--- | :--- |
+| Viewer | 視点変更、エネルギー・最大力の表示 |
+| Range | XYZ 範囲・元素によるインデックス一括選択 |
+| Editing | 選択原子の移動・回転（軸指定含む） |
+| Addition | 原子・分子の追加、元素置換、削除 |
+| Opt | 構造最適化（FIRELBFGS / LBFGS / FIRE） |
+| Other | インデックス交換、拘束条件設定、Calculator 切替、画像保存 |
+
+#### 注意事項
+
+- トラジェクトリには対応していません。単一 Atoms のみ受け付けます。
+
+### パターン D: nglview による単一構造の可視化
+
+`view_ngl` や `show_gui` の内部で使用されているライブラリです。  
+表示スタイルをより細かく制御したい場合や、`view_ngl` でカバーできない操作が必要な場合に直接利用します。
 
 ```python
 import nglview as nv
 
-# 単一構造の表示（GUI パネル付き）
-view = nv.show_ase(atoms, gui=True)
+# 単一構造の表示
+view = nv.show_ase(atoms)
 view
 ```
 
-`gui=True` を指定すると、距離・角度測定やレプリゼンテーション変更などの GUI パネルが表示されます。
+```
+# トラジェクトリの表示
+view = nv.show_asetraj(trajectory)
+view
+```
 
 #### 表示オプションの調整
 
 ```python
-view = nv.show_ase(atoms, gui=True)
+view = nv.show_ase(atoms)
 
 # 表示レプリゼンテーションの変更
 view.clear_representations()
@@ -127,42 +175,19 @@ nglview では以下のレプリゼンテーションを利用できます。
 | `add_licorice()` | ボンド強調表示 | 有機分子の結合確認 |
 | `add_surface()` | 表面表示 | タンパク質等の大規模分子 |
 
-### パターン C: nglview によるトラジェクトリの可視化
-
-MD や構造最適化のトラジェクトリをアニメーションとして再生できます。
-
-```python
-import nglview as nv
-
-# トラジェクトリの表示
-view = nv.show_asetraj(trajectory, gui=True)
-view
-```
-
 #### フレーム間引き
 
 大規模なトラジェクトリではフレームを間引いて表示することで、メモリ使用量と表示速度を改善できます。
 
 ```python
 # 10フレームごとに間引いて表示
-view = nv.show_asetraj(trajectory[::10], gui=True)
+view = nv.show_asetraj(trajectory[::10])
 view
 ```
 
-#### 間引き間隔の選び方
+### パターン F: ASE visualization（ngl バックエンド）
 
-| トラジェクトリの規模 | 推奨間引き間隔 | 表示フレーム数の目安 |
-| :--- | :--- | :--- |
-| 構造最適化（~100 steps） | 間引き不要 | ~100 |
-| MD（~1,000 steps） | `[::5]` | ~200 |
-| MD（~10,000 steps） | `[::50]` | ~200 |
-| MD（~100,000 steps） | `[::500]` | ~200 |
-
-目安として、表示フレーム数が 200 以下になるように間引き間隔を設定してください。
-
-### パターン D: ASE visualization（ngl バックエンド）
-
-> **注意**: `ase.visualize.view` よりも `pfcc_extras.show_gui` または `nglview` の直接使用を推奨します。`show_gui` はより簡潔で、Matlantis 環境に最適化されています。
+> **注意**: `ase.visualize.view` よりも `pfcc_extras.view_ngl` または `nglview` の直接使用を推奨します。`view_ngl` はより簡潔で、Matlantis 環境に最適化されています。
 
 ASE 組み込みの `view` 関数に nglview バックエンドを指定する方法です。
 
@@ -175,7 +200,7 @@ view(atoms, viewer="ngl")
 
 この方法は ASE のインターフェースに慣れている場合に便利ですが、nglview を直接使う場合と比べて細かな制御は制限されます。レプリゼンテーションの変更や GUI パネルの表示などが必要な場合は、`nv.show_ase()` を直接使用してください。
 
-### パターン E: POV-Ray による高品質レンダリング
+### パターン G: POV-Ray による高品質レンダリング
 
 論文や発表用の高品質な静止画を生成する場合に使用します。ラスタライズベースのレンダリングにより、光源、影、反射を含む写実的な画像を出力できます。
 
@@ -211,22 +236,22 @@ write(
 )
 ```
 
-### パターン F: 最適化前後の比較
+### パターン H: 最適化前後の比較
 
 構造最適化の前後で構造を比較する場合の手法です。
 
 ```python
-import nglview as nv
+from pfcc_extras import view_ngl
+from ipywidgets import HBox
 
 # 最適化前
-view_before = nv.show_ase(atoms_before, gui=True)
-print("Before optimization:")
-display(view_before)
+view_before = view_ngl(atoms_before, representations=["ball+stick"], replace_structure=True)
 
 # 最適化後
-view_after = nv.show_ase(atoms_after, gui=True)
-print("After optimization:")
-display(view_after)
+view_after = view_ngl(atoms_after, representations=["ball+stick"], replace_structure=True)
+
+# 2つのビューを横並びで表示
+HBox([view_before.v, view_after.v])
 ```
 
 または、トラジェクトリとして最適化過程全体を表示します。
@@ -235,11 +260,11 @@ display(view_after)
 # 最適化トラジェクトリの表示
 from ase.io import read
 opt_traj = read("optimization.traj", index=":")
-view = nv.show_asetraj(opt_traj, gui=True)
+view = view_ngl(opt_traj, representations=["ball+stick"], replace_structure=True)
 view
 ```
 
-### パターン G: 大規模系の可視化
+### パターン I: 大規模系の可視化
 
 1000 原子以上の大規模系では、以下の点に注意してください。
 
@@ -263,24 +288,23 @@ view
 #### 部分表示の例
 
 ```python
-# 特定の元素のみ表示
+# インデックス範囲で選択
 view = nv.show_ase(atoms)
 view.clear_representations()
-view.add_ball_and_stick(selection="Fe")  # Feのみ表示
-
-# インデックス範囲で選択
-view.add_ball_and_stick(selection="0-99")  # 最初の100原子のみ
+sel = "@" + ",".join(str(i) for i in range(100))  # 最初の100原子のみ表示
+view.add_ball_and_stick(selection=sel)
+view
 ```
 
-### パターン H: 距離・角度の測定
+### パターン J: 距離・角度の測定
 
-nglview の GUI パネルを使って、原子間距離や角度をインタラクティブに測定できます。
+`view_ngl`, `show_gui`, `AddEditor`, `nglview` では、原子を右クリックで選択し、選択した最後の原子を再度クリックすることで距離、角度、二面角を測定できます。
 
 ```python
 import nglview as nv
 
 view = nv.show_ase(atoms, gui=True)
-# GUI パネルの "Measurements" タブで:
+# 原子を右クリックして選択し、最後に選択した原子を再クリックすると測定結果が表示されます。
 # - 2原子をクリック: 距離を測定
 # - 3原子をクリック: 角度を測定
 # - 4原子をクリック: 二面角を測定
@@ -305,7 +329,7 @@ dihedral = atoms.get_dihedral(0, 1, 2, 3)
 print(f"Dihedral: {dihedral:.1f} degrees")
 ```
 
-### パターン I: トラジェクトリファイルの読み込みと表示
+### パターン K: トラジェクトリファイルの読み込みと表示
 
 `.traj` ファイルからトラジェクトリを読み込んで表示する一連の手順です。
 
@@ -328,7 +352,7 @@ view
 
 ### pfcc-extras の可視化を優先する
 
-ASE と pfcc-extras の両方で可視化できる場合は、pfcc-extras を優先してください。`pfcc_extras.show_gui` は単一構造とトラジェクトリの両方に 1 行で対応でき、Matlantis 環境に最適化されています。`ase.visualize.view` は細かな制御が制限されるため、特別な理由がない限り使用を避けてください。
+ASE と pfcc-extras の両方で可視化できる場合は、pfcc-extras を優先してください。`pfcc_extras.view_ngl` は単一構造とトラジェクトリの両方に 1 行で対応でき、Matlantis 環境に最適化されています。
 
 ### 計算前の視覚チェック
 
@@ -345,8 +369,7 @@ ASE と pfcc-extras の両方で可視化できる場合は、pfcc-extras を優
 
 ### 単一構造とトラジェクトリの使い分け
 
-- 単一構造の確認: `show_gui(atoms)` または `nv.show_ase(atoms)`
-- トラジェクトリの再生: `nv.show_asetraj(traj)` またはフレーム間引き
+- 構造の確認: `view_ngl(atoms)`、`show_gui(atoms)` または `nv.show_ase(atoms)`
 - 最適化過程の確認: `.traj` ファイルを読み込んでトラジェクトリ表示
 
 ### Notebook 固有の注意点

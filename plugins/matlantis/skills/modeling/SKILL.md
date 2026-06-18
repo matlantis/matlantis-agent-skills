@@ -63,8 +63,8 @@ print(f"Cell: {atoms.cell.lengths()}")
 任意のミラー指数に対応し、直交化とスーパーセル化を自動で行う堅牢な実装です。
 
 ```python
+from pymatgen.core import Structure
 from pymatgen.core.surface import generate_all_slabs
-from pymatgen.io.ase import AseAtomsAdaptor
 from ase import Atoms
 import numpy as np
 
@@ -86,7 +86,7 @@ def create_slabs(
         min_ab_size: 表面 (ab 面) の最小サイズ (A)
     """
     # ASE -> Pymatgen 変換
-    structure = AseAtomsAdaptor.get_structure(bulk_atoms)
+    structure = Structure.from_ase_atoms(bulk_atoms)
 
     # 全終端面候補を生成
     slabs_gen = generate_all_slabs(
@@ -105,7 +105,7 @@ def create_slabs(
         slab = slab.get_orthogonal_c_slab()
 
         # Pymatgen -> ASE 変換
-        atoms = AseAtomsAdaptor.get_atoms(slab)
+        atoms = slab.to_ase_atoms()
 
         # 面内サイズの拡張
         cell = atoms.get_cell()
@@ -133,7 +133,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 from ase import Atoms
 
-def smiles_to_atoms(smiles: str, vacuum: float = 10.0) -> Atoms:
+def smiles_to_atoms_rdkit(smiles: str, vacuum: float = 10.0) -> Atoms:
     """SMILES 文字列から 3 次元分子構造 (Atoms) を生成する。"""
     # 分子オブジェクト生成
     mol = Chem.MolFromSmiles(smiles)
@@ -165,10 +165,10 @@ def smiles_to_atoms(smiles: str, vacuum: float = 10.0) -> Atoms:
 
 ```python
 # エタノール
-ethanol = smiles_to_atoms("CCO")
+ethanol = smiles_to_atoms_rdkit("CCO")
 
 # ベンゼン
-benzene = smiles_to_atoms("c1ccccc1")
+benzene = smiles_to_atoms_rdkit("c1ccccc1")
 ```
 
 ### パターン D: 原子置換 (ドーピング)
@@ -188,6 +188,16 @@ def substitute_atom(atoms: Atoms, index: int, new_symbol: str) -> Atoms:
 
 # 使用例: 0 番目の原子を Pt に置換
 # doped_atoms = substitute_atom(bulk_atoms, 0, "Pt")
+
+# numbers 属性を直接変更する方法（原子番号で置換）
+def substitute_atom_by_number(atoms: Atoms, index: int, new_atomic_number: int) -> Atoms:
+    """指定インデックスの原子を原子番号で置換する。"""
+    new_atoms = atoms.copy()
+    new_atoms.numbers[index] = new_atomic_number
+    return new_atoms
+
+# 使用例: 0 番目の原子を Pt (78) に置換
+# doped_atoms = substitute_atom_by_number(bulk_atoms, 0, 78)
 ```
 
 置換位置が複数考えられる場合（サイト依存性）、すべての候補について構造を作成しエネルギー比較を行う必要があります。
@@ -197,13 +207,20 @@ def substitute_atom(atoms: Atoms, index: int, new_symbol: str) -> Atoms:
 スラブモデルの下層を固定して上層のみ緩和する場合に使用します。
 
 ```python
+import numpy as np
 from ase.constraints import FixAtoms
 
 # Z 座標が一定値以下の原子を固定
 z_threshold = atoms.positions[:, 2].min() + 3.0  # 下から 3A 以内を固定
-indices_fix = [i for i, pos in enumerate(atoms.positions) if pos[2] < z_threshold]
+indices_fix = np.where(atoms.positions[:, 2] < z_threshold)[0]
 
 constraint = FixAtoms(indices=indices_fix)
+atoms.set_constraint(constraint)
+
+# NumPy の boolean 配列でマスク指定する方法
+mask_fix = atoms.positions[:, 2] < z_threshold  # dtype=bool, shape=(n_atoms,)
+print(np.where(mask_fix)[0])  # マスクをインデックス配列に変換して表示
+constraint = FixAtoms(mask=mask_fix)
 atoms.set_constraint(constraint)
 ```
 
@@ -218,7 +235,17 @@ from pfcc_extras.liquidgenerator.liquid_generator import LiquidGenerator
 from ase.build import molecule
 atoms_mol = molecule("H2O")
 
-# 30A x 30A x 30A のセルに 15 分子を充填
+# packmol バックエンドで充填（composition は dict のリスト）
+generator = LiquidGenerator(
+    "packmol",
+    cell={"lx": 30, "ly": 30, "lz": 30},
+    composition=[
+        {"name": "water", "structure": atoms_mol, "number": 15}
+    ]
+)
+atoms_liquid = generator.run()
+
+# torch バックエンドで充填（composition は Atoms のリスト）
 generator = LiquidGenerator(
     "torch",
     cell=[[30, 0, 0], [0, 30, 0], [0, 0, 30]],
@@ -237,6 +264,22 @@ from ase.build import bulk
 # Al の FCC 構造を 3x3x3 に拡大
 atoms = bulk("Al", "fcc", a=4.05).repeat((3, 3, 3))
 # この後、高温 MD -> 急冷でアモルファス化
+```
+
+乱数で初期配置を作って Seed とする方法もあります。
+
+```python
+import numpy as np
+from ase import Atoms
+
+# 30A 立方セルに Si を 64 原子ランダム配置
+seed = 42
+rng = np.random.default_rng(seed)
+cell = np.diag([30.0, 30.0, 30.0])
+positions = rng.random((64, 3)) @ cell
+atoms = Atoms(symbols=["Si"] * 64, positions=positions, cell=cell, pbc=True)
+
+# この後、衝突チェック -> 高温 MD -> 急冷でアモルファス化
 ```
 
 ### パターン H: 衝突検出
@@ -296,7 +339,7 @@ wrapped_atoms = wrap_molecule(atoms)
 
 ## ベストプラクティス
 
-1. **pfcc-extras を優先する**: 構造モデリングにおいて ASE と pfcc-extras の両方で実現できる操作は、pfcc-extras を優先してください。特に衝突検出（`CollisionDetector`）、PBC ラッピング（`wrap_molecule`）、部分占有処理（`PartialOccupancy`）、近傍解析（`get_neighbors`）は pfcc-extras の専用 API がより安全・簡潔です。
+1. **pfcc-extras を優先する**: 構造モデリングにおいて ASE と pfcc-extras の両方で実現できる操作は、pfcc-extras を優先してください。特に衝突検出（`CollisionDetector`）、PBC ラッピング（`wrap_molecule`）、部分占有処理（`PartialOccupancy`）、近傍解析（`get_neighbors`）、SMILES からの分子生成（`pfcc_extras.smiles_to_atoms`）は pfcc-extras の専用 API がより安全・簡潔です。
 
 2. **構造緩和は必須**: 生成直後の構造（特に Slab 切り出しや SMILES 生成後）は平衡状態にありません。物性値計算の前に必ず構造最適化を行ってください。
 
@@ -311,6 +354,8 @@ wrapped_atoms = wrap_molecule(atoms)
 7. **ドーピング位置の比較**: 置換位置が複数ある場合は、すべての候補構造を作成してエネルギー比較を行ってください。
 
 8. **PBC の設定**: 結晶・スラブ系では `pbc=True` を忘れないでください。分子系では `pbc=False` が適切です。
+
+9. **内包表記より NumPy ベクトル化を優先**: 数値配列（座標、距離、マスク、インデックス抽出など）に対する処理は、リスト内包表記より `NumPy` のベクトル演算（例: `np.where`, ブロードキャスト, boolean mask）を優先してください。可読性と性能の両面で有利です。
 
 ### 外部データベース
 

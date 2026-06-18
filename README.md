@@ -22,6 +22,7 @@ Each skill systematically covers implementation patterns, best practices, and co
 | **Computation** | [optimization](#optimization) | Fixed-cell & variable-cell relaxation, symmetry preservation, multi-stage optimization |
 | **Computation** | [dynamics](#dynamics) | NVE/NVT/NPT molecular dynamics, metadynamics, transport properties |
 | **Computation** | [reaction](#reaction) | NEB reaction path search, transition state search, activation energy |
+| **Computation** | [adsorption](#adsorption) | Adsorption structure construction, adsorption energy, adsorption site search |
 | **Computation** | [property-analysis](#property-analysis) | Elastic constants, phonons, QHA, diffusion coefficients, viscosity, thermal conductivity |
 | **Workflow** | [integrated-workflows](#integrated-workflows) | Structure screening, adsorption campaigns, defect analysis pipelines |
 | **Workflow** | [background-job](#background-job) | Background execution of long-running calculations, checkpoint management |
@@ -137,6 +138,14 @@ Reaction path and transition state search. Covers NEB (Nudged Elastic Band), CI-
 
 ```
 "Calculate the activation energy for CO dissociation on a surface using NEB"
+```
+
+### adsorption
+
+Molecular adsorption on surfaces. Covers adsorption structure construction with add_adsorbate, adsorption energy calculation with D3 dispersion correction, and adsorption site search (Optuna black-box optimization recommended).
+
+```
+"Find the most stable adsorption site for CO on Pt(111) and compute the adsorption energy"
 ```
 
 ### property-analysis

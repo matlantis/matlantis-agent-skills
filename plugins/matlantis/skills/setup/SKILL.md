@@ -1,15 +1,16 @@
 ---
 name: mt-setup
 description: >
-  Calculator初期化、PFP Estimator設定、計算モード(calc_mode)選択、構造ファイルI/O、
+  Calculator初期化、PFP Estimator設定、構造ファイルI/O、
   バッチ実行設定を扱うセットアップスキルです。
   pfp_api_client, ASECalculator, Estimator, EstimatorCalcMode, estimator_fn, pfp_estimator_fn,
-  max_retries, calc_mode選択, PBE, PBE_U, R2SCAN, WB97XD, D3,
+  max_retries,
   ase.io.read, ase.io.write, .cif, .xyz, POSCAR, .traj,
   run_jobs, ResourceAwareJobScheduler, calculator.reset,
   RetriesExceeded, MultiCalculatorUseDetected, ConcurrentUseDetected,
   PFPAPIError, Too many atoms, Too many neighbors
   に関するコード生成時に使用してください。
+  calc_mode の選択方法やモード詳細は pfp スキルを参照してください。
 ---
 # Calculator 初期化・構造 I/O
 
@@ -53,20 +54,7 @@ Matlantis 向けに `.ipynb` を新規作成・更新する場合は、Notebook 
 
 ### 計算モード選択フローチャート
 
-```
-計算対象は？
-├── 有機分子・単分子系
-│   ├── 9 元素のみ（H C N O F P S Cl Br） → WB97XD
-│   └── それ以外の元素を含む → R2SCAN_PLUS_D3
-├── 遷移金属酸化物・強相関系 → PBE_U（分散力が重要なら PBE_U_PLUS_D3）
-├── 分子結晶・液体・吸着系
-│   ├── 実験値との定量比較が重要 → R2SCAN_PLUS_D3
-│   └── 定性的・スクリーニング用途 → PBE_PLUS_D3
-├── バルク結晶の形成エネルギー
-│   ├── 実験値と比較 → R2SCAN
-│   └── Materials Project と比較 → PBE（または PBE_U）
-└── 迷ったとき → PBE
-```
+計算モードの選び方は [pfp スキル](../pfp/SKILL.md) を参照してください。
 
 ## 実装パターン
 
@@ -281,15 +269,7 @@ def ensure_output_dir(path: str) -> str:
 
 ### 計算モード一覧
 
-| モード | 汎関数 | 対応元素数 | 主な用途 |
-|--------|--------|-----------|---------|
-| `PBE` | GGA-PBE | 72 | 汎用（デフォルト） |
-| `PBE_U` | GGA-PBE + Hubbard U | 72 | 遷移金属酸化物・強相関系 |
-| `PBE_PLUS_D3` | GGA-PBE + D3 分散補正 | 72 | 分子結晶・液体（定性） |
-| `PBE_U_PLUS_D3` | GGA-PBE + U + D3 | 72 | 酸化物 + 有機配位子 |
-| `R2SCAN` | meta-GGA R2SCAN | 72 | バルク形成エネルギー |
-| `R2SCAN_PLUS_D3` | meta-GGA R2SCAN + D3 | 72 | 分子・吸着（定量） |
-| `WB97XD` | hybrid wB97X-D | 9 | 有機分子（単分子系専用） |
+モード一覧（旧モード名・バージョン依存元素数）と対応元素の詳細は [pfp スキル](../pfp/SKILL.md) を参照してください。
 
 ### 重要な注意事項
 

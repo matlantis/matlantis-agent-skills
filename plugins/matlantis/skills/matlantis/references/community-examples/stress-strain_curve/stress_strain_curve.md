@@ -70,7 +70,7 @@ class PrintCellShape(MDExtensionBase):
     def __init__(self, cell_log=None):
         self.cell_log = cell_log
     def __call__(self, system, integrator) -&gt; None:
-        cell_par = system.ase_atoms.get_cell_lengths_and_angles()
+        cell_par = system.ase_atoms.cell.cellpar()
         istep = system.current_total_step
         print(f"Dyn step {istep:4d} a {cell_par[0]:3.2f} b {cell_par[1]:3.2f} c {cell_par[2]:3.2f} alpha {cell_par[3]:3.2f} beta {cell_par[4]:3.2f} gamma {cell_par[5]:3.2f} ")
         if self.cell_log is not None:
