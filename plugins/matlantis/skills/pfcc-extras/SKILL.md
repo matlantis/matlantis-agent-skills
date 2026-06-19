@@ -1,33 +1,13 @@
 ---
 name: pfcc-extras
 description: >
-  Use this skill for code generation involving pfcc_extras utilities.
-  pfcc_extras, show_gui, view_ngl, SurfaceEditor, AddEditor,
-  CollisionDetector, LiquidGenerator, smiles_to_atoms, generate_conformers,
-  PartialOccupancy, wrap_molecule, get_mol_list, make_alloy, select_subset,
-  fill_interstitial_sites, make_mol_surface, solid_solid_interface,
-  get_hkl_bulk_structure, makesurface, make_surfaces_pmg, make_rectangular_slab,
-  DepositionScheduler, DeleteMoleculeScheduler, ElasticVirtualWall,
-  ApplyUniformEfield, LinearTemperatureScheduler, CellDeformationScheduler,
-  EarlyStopScheduler, TemperatureScaleScheduler,
-  IsosurfaceCalculator, calculate_bulk_modulus, ChemicalWindow,
-  MonteCarlo, GCMC, Lattice MC, adsorption_structure_search,
-  shift_energies, IsotropicFilter,
-  run_jobs, ResourceAwareJobScheduler, QueueScheduler, PapermillScheduler,
-  ParameterizedJob, parallel notebook execution, batch execution,
-  job scheduling, concurrent execution control, parameter sweep,
-  asetraj_to_mdtraj, asetraj_to_mdanalysis, MDTraj, MDAnalysis,
-  trajectory conversion, traj conversion, diffusion coefficient analysis,
-  viscosity analysis,
-  cut_sphere, cut_cube, solid_molecule_interface, liquid_liquid_interface, soak,
-  solid_solid_interface_random, search_materials, replace_elements,
-  RNEMDExtension, VelocityLogExtension, TemperatureLogExtension,
-  get_viscosity, get_thermal_conductivity, plot_profile,
-  get_pfp_calculator, WrappedCalculator, TimeProfileHook,
-  farthest_point_sampling, opt, opt_cell_size, opt_with_symmetry,
-  estimate_rate, estimate_steps,
-  deposition simulation, molecular deposition, ion implantation,
-  thin film growth, deposition MD, incident energy, incident velocity
+  pfcc_extras (Matlantis/ASE workflow utilities) を使うコード生成時に使用します。
+  可視化 (show_gui, view_ngl, SurfaceEditor)、構造加工 (smiles_to_atoms,
+  LiquidGenerator, make_alloy, makesurface, 各種 interface)、MD スケジューラー
+  (DepositionScheduler, ApplyUniformEfield など)、物性解析 (MonteCarlo, GCMC,
+  calculate_bulk_modulus, 粘度・熱伝導率, trajectory 変換)、吸着・構造探索
+  (adsorption_structure_search)、ジョブ実行制御 (run_jobs,
+  ResourceAwareJobScheduler, parameter sweep) を扱います。
 ---
 
 # pfcc_extras ユーティリティ
