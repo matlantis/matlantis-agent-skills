@@ -39,6 +39,7 @@ Matlantis Agent Skills は、[Matlantis](https://matlantis.com/ja/) プラット
   - インストール: https://claude.ai/code
 - Codex plugin として使う場合は **Codex** CLI がインストールされていること
   - インストール: https://developers.openai.com/codex/cli
+- **GitHub Copilot** — 公式のプラグインサポートはありません。手動での設置方法は下記の [GitHub Copilot (参考)](#github-copilot-参考) セクションを参照してください
 
 ### インストール手順
 
@@ -71,6 +72,17 @@ codex plugin add matlantis@matlantis-agent-skills
 ```
 
 インストールまたは有効化後、Matlantis 関連のコードや質問に対して、エージェントが自動的に適切なスキルを参照するようになります。
+
+#### GitHub Copilot (参考)
+
+> **注意:** GitHub Copilot はこのプラグインマーケットプレイスの公式サポート対象外です。以下はあくまで参考のための手動設置方法であり、Copilot のバージョンやエディタ設定によって動作が異なる場合があります。
+
+このリポジトリをクローンし、`skills` ディレクトリをプロジェクトの `.copilot/` 以下にコピーします。
+
+```bash
+git clone https://github.com/matlantis/matlantis-agent-skills.git
+cp -r matlantis-agent-skills/plugins/matlantis/skills <your-project>/.copilot/
+```
 
 ## スキル一覧と使用例
 

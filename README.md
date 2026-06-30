@@ -41,6 +41,7 @@ Each skill systematically covers implementation patterns, best practices, and co
   - Installation: https://claude.ai/code
 - **Codex** CLI installed when using Codex plugins
   - Installation: https://developers.openai.com/codex/cli
+- **GitHub Copilot** — no official plugin support; see the [GitHub Copilot](#github-copilot-reference) section below for a manual workaround
 
 ### Installation
 
@@ -73,6 +74,17 @@ codex plugin add matlantis@matlantis-agent-skills
 ```
 
 Once installed or enabled, the agent will automatically reference the appropriate skills when you work with Matlantis-related code or questions.
+
+#### GitHub Copilot (Reference)
+
+> **Note:** GitHub Copilot is not officially supported by this plugin marketplace. The following is a manual workaround for reference only — behavior may vary depending on the Copilot version and your editor settings.
+
+Clone this repository and copy the `skills` directory into your project's `.copilot/` directory:
+
+```bash
+git clone https://github.com/matlantis/matlantis-agent-skills.git
+cp -r matlantis-agent-skills/plugins/matlantis/skills <your-project>/.copilot/
+```
 
 ## Skills Details and Usage Examples
 
